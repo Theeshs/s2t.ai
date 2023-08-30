@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "backend"
+version = "0.1.0"
+description = ""
+authors = ["Thee <theekshana.sandaru@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "^4.2.4"
+django-ninja = "^0.22.2"
+elasticsearch = "7.13.4"
+psycopg2-binary = "^2.9.7"
+elasticsearch-dsl = "^7.4.1"
+django-elasticsearch-dsl = "^7.3"
+django-elasticsearch-dsl-drf = "^0.22.5"
+asgiref = "^3.7.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
