@@ -15,4 +15,5 @@ async def list_dashboard_charts(request, id: int):
     return charts
 
 @chart_api.post("/dashboard/{id}/charts", response=ChartsOutSchema)
-def create_chart()
+def create_chart():
+    return
