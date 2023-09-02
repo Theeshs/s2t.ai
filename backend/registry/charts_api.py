@@ -3,7 +3,7 @@ from .models import Chart, ChartType
 from .handlers import get_dashboard_charts
 from .schema import ChartsOutSchema
 
-chart_api = NinjaAPI()
+chart_api = NinjaAPI(version='2.0.0')
 
 @chart_api.get("/healthcheck")
 def health_check(request):
