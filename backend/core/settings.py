@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -78,21 +79,36 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 's2t.ai',
+#         'USER': 'postgres',
+#         'PASSWORD': 'mysecretpassword',
+#         'HOST': '127.0.0.1',  # Use load balancer's address
+#         'PORT': '5432',  # Default PostgreSQL port
+#         'POOL_SIZE': 20,  # Number of connections in the pool
+#     }
+    
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 's2t.ai',
-        'USER': 'postgres',
-        'PASSWORD': 'mysecretpassword',
-        'HOST': '127.0.0.1',  # Use load balancer's address
-        'PORT': '5432',  # Default PostgreSQL port
-        'POOL_SIZE': 20,  # Number of connections in the pool
+        'HOST': os.environ.get('DJANGO_DB_HOST', '127.0.0.1'),
+        'PORT': os.environ.get('DJANGO_DB_PORT', '5432'),
+        'NAME': os.environ.get('DJANGO_DB_NAME', 's2t.ai'),
+        'USER': os.environ.get('DJANGO_DB_USER', 'postgres'),
+        'PASSWORD': os.environ.get('DJANGO_DB_PASSWORD', 'mysecretpassword'),
     }
 }
 
+ELASTICSEARCH_HOST = os.environ.get('ELASTICSEARCH_HOST', '127.0.0.1')
+ELASTICSEARCH_PORT = os.environ.get('ELASTICSEARCH_PORT', '9200')
+print(ELASTICSEARCH_HOST, ELASTICSEARCH_PORT)
 ELASTICSEARCH_DSL = {
     'default': {
-        'hosts': 'http://127.0.0.1:9200/',
+        'hosts': f"{ELASTICSEARCH_HOST}:{ELASTICSEARCH_PORT}/",
     },
 }
 
@@ -143,4 +159,5 @@ NINJA_DOCS_VIEW = 'redoc'
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
+    # "*",
 ]

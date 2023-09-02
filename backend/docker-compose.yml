@@ -1,27 +1,46 @@
 version: '3'
 
 services:
-  db:
-    image: postgres
-    container_name: s2tai-db
-    environment:
-      POSTGRES_DB: s2t.ai
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: mysecretpassword
-    networks:
-      - mynetwork  # Attach the database to the same network
-
   web:
     build:
       context: .
       dockerfile: Dockerfile
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/app
+    container_name: s2tai
     ports:
       - "8000:8000"
+    volumes:
+      - .:/app
+    command: >
+      sh -c "python manage.py wait_for_db && 
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
     depends_on:
       - db
+      - elasticsearch
+    environment:
+      - DJANGO_DB_HOST=db
+      - DJANGO_DB_PORT=5432
+      - DJANGO_DB_NAME=s2t.ai
+      - DJANGO_DB_USER=postgres
+      - DJANGO_DB_PASSWORD=mysecretpassword
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
   
-  networks:
-    mynetwork:
+  db:
+    image: postgres:latest
+    container_name: s2tai-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=s2t.ai
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=mysecretpassword
+
+  elasticsearch:
+    image: elasticsearch:8.8.0
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false

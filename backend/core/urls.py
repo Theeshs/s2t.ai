@@ -17,10 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from registry.api import api
-from registry.charts_api import chart_api
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/", api.urls),
-    path("api/", chart_api.urls)
 ]

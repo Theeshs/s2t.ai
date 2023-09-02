@@ -1,12 +1,14 @@
 from ninja import NinjaAPI
-from .schema import DashboardSchema
+from .schema import DashboardSchema, ChartsOutSchema, ChartCreateSchema, ChartTypeCreateSchemaOut, ChartTypeCreateSchema
 from .models import Dashboard
 from django.db.utils import IntegrityError
 from rest_framework import status
 from typing import List
 from asgiref.sync import sync_to_async
-from .handlers import get_all
+from .handlers import get_all, get_dashboard_charts
 from datetime import datetime
+from .models import Chart, ChartType
+from django.http import JsonResponse
 
 api = NinjaAPI()
 
@@ -65,3 +67,41 @@ async def update_dashboard(request, id: int, dashboard_payload: DashboardSchema)
     dashboard.is_deleted = dashboard_payload.isDeleted
 
     return dashboard
+
+
+@api.get("/healthcheck")
+def health_check(request):
+    return "Hello"
+
+@api.get("/dashboard/{id}/charts", response=List[ChartsOutSchema])
+async def list_dashboard_charts(request, id: int):
+    charts = await get_dashboard_charts(id)
+    if not charts:
+        return JsonResponse({
+            "msg": "No charts available",
+        }, status=status.HTTP_404_NOT_FOUND)
+    return charts
+
+@api.post("/dashboard/{id}/charts", response=ChartsOutSchema)
+async def create_chart(request, id: int, payload: ChartCreateSchema):
+    dashboard = await Dashboard.objects.aget(id=id)
+    chart_type = await ChartType.objects.aget(id=payload.chart_type)
+    chart_payload = {
+        "name": payload.name,
+        "order": payload.order,
+        "chart_type": chart_type,
+        "dashboard": dashboard
+    }
+    chart = await Chart.objects.acreate(**chart_payload)
+    chart = {
+        "id": chart.id,
+        "name": chart.name,
+        "order": chart.order,
+        "chart_type": chart.chart_type_id
+    }
+    return chart
+
+@api.post("/chart_type", response=ChartTypeCreateSchemaOut)
+async def create_chart_type(request, palyload: ChartTypeCreateSchema):
+    chart_type = await ChartType.objects.acreate(chart_type=palyload.chart_type)
+    return chart_type

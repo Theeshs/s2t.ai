@@ -17,7 +17,20 @@ class DashboardSchema(Schema):
 
 
 class ChartsOutSchema(Schema):
-    id: int
+    id: Optional[int]
+    name: Optional[str]
+    order: Optional[int]
+    chart_type: Optional[int]
+
+
+class ChartCreateSchema(Schema):
     name: str
     order: int
+    chart_type: int
+
+class ChartTypeCreateSchema(Schema):
+    chart_type: str
+
+class ChartTypeCreateSchemaOut(Schema):
+    id: int
     chart_type: str

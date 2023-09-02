@@ -7,4 +7,8 @@ def get_all(model):
 
 @sync_to_async
 def get_dashboard_charts(id: str):
-    return list(Chart.objects.filter(dashboard=id).all())
+    charts = Chart.objects.filter(dashboard=id).all()
+    print(charts)
+    if not charts.exists():
+        return None
+    return list(charts)
