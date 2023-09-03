@@ -7,7 +7,7 @@ def get_all(model):
 
 
 def get_dashboard_charts(id: str):
-    charts = Chart.objects.filter(dashboard=id).all()
+    charts = Chart.objects.filter(dashboard=id).all().order_by("-order")
     if not charts.exists():
         return None
     return list(charts)

@@ -1,5 +1,5 @@
 from ninja import NinjaAPI
-from .schema import DashboardSchema, ChartsOutSchema, ChartCreateSchema, ChartTypeCreateSchemaOut, ChartTypeCreateSchema
+from .schema import DashboardSchema, ChartsOutSchema, ChartCreateSchema, ChartTypeCreateSchemaOut, ChartTypeCreateSchema, ChartUpdatePayload
 from .models import Dashboard
 from django.db.utils import IntegrityError
 from rest_framework import status
@@ -10,6 +10,7 @@ from datetime import datetime
 from .models import Chart, ChartType
 from django.http import JsonResponse
 from utils.elasticsearch import ElasticSearchConnection
+from utils.chart_handlers import PieChart
 
 api = NinjaAPI()
 
@@ -125,3 +126,27 @@ async def create_chart_type(request, palyload: ChartTypeCreateSchema):
 async def get_chart_types(request):
     chart_types = await get_all(ChartType)
     return chart_types
+
+@api.put("/dashboard/{dashboard_id}/chart/{chart_id}/data", response=ChartsOutSchema)
+async def process_chart_data(request, dashboard_id: int, chart_id: int, payload: ChartUpdatePayload):
+    chart = await Chart.objects.aget(dashboard=dashboard_id, id=chart_id)
+    if chart:
+        chart_type = await ChartType.objects.aget(id=chart.chart_type_id)
+        if chart_type.chart_type == 'pie':
+            pie = PieChart("file_1", "name", "salary")
+            series = await sync_to_async(pie.get_pie_chart_data)()
+            chart.chart_config["series"] = [series]
+            chart.chart_config["title"] = payload.title
+        
+        await chart.asave()
+        return {
+            "id": chart.id,
+            "name": chart.name,
+            "order": chart.order,
+            "chart_type": chart.chart_type_id,
+            "chart_config": chart.chart_config
+        }
+    else:
+        print("unable to find the chart")
+    
+    return JsonResponse({}, status=status.HTTP_200_OK)

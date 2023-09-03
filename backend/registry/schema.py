@@ -37,3 +37,10 @@ class ChartTypeCreateSchemaOut(Schema):
     id: int
     chart_type: str
     chart_image: str
+
+
+class ChartUpdatePayload(Schema):
+    title: str
+    subTitle: str
+    yAxis: str
+    xAxis: str
