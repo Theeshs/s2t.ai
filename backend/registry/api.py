@@ -9,6 +9,7 @@ from .handlers import get_all, get_dashboard_charts
 from datetime import datetime
 from .models import Chart, ChartType
 from django.http import JsonResponse
+from utils.elasticsearch import ElasticSearchConnection
 
 api = NinjaAPI()
 
@@ -75,12 +76,24 @@ def health_check(request):
 
 @api.get("/dashboard/{id}/charts", response=List[ChartsOutSchema])
 async def list_dashboard_charts(request, id: int):
-    charts = await get_dashboard_charts(id)
+    charts = await sync_to_async(get_dashboard_charts)(id)
     if not charts:
         return JsonResponse({
             "msg": "No charts available",
         }, status=status.HTTP_404_NOT_FOUND)
-    return charts
+
+    temp_charts = []
+    for chart in charts:
+        temp_charts.append(
+            {
+                "id": chart.id,
+                "name": chart.name,
+                "order": chart.order,
+                "chart_type": chart.chart_type_id,
+                "chart_config": chart.chart_config
+            }
+        )
+    return temp_charts
 
 @api.post("/dashboard/{id}/charts", response=ChartsOutSchema)
 async def create_chart(request, id: int, payload: ChartCreateSchema):
@@ -90,14 +103,16 @@ async def create_chart(request, id: int, payload: ChartCreateSchema):
         "name": payload.name,
         "order": payload.order,
         "chart_type": chart_type,
-        "dashboard": dashboard
+        "dashboard": dashboard,
+        "chart_config": payload.chart_config
     }
     chart = await Chart.objects.acreate(**chart_payload)
     chart = {
         "id": chart.id,
         "name": chart.name,
         "order": chart.order,
-        "chart_type": chart.chart_type_id
+        "chart_type": chart.chart_type_id,
+        "chart_config": chart.chart_config
     }
     return chart
 
@@ -105,3 +120,8 @@ async def create_chart(request, id: int, payload: ChartCreateSchema):
 async def create_chart_type(request, palyload: ChartTypeCreateSchema):
     chart_type = await ChartType.objects.acreate(chart_type=palyload.chart_type)
     return chart_type
+
+@api.get("/chart_type", response=List[ChartTypeCreateSchemaOut])
+async def get_chart_types(request):
+    chart_types = await get_all(ChartType)
+    return chart_types

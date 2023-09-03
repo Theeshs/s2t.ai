@@ -21,12 +21,14 @@ class ChartsOutSchema(Schema):
     name: Optional[str]
     order: Optional[int]
     chart_type: Optional[int]
+    chart_config: Optional[dict]
 
 
 class ChartCreateSchema(Schema):
     name: str
     order: int
     chart_type: int
+    chart_config: Optional[dict]
 
 class ChartTypeCreateSchema(Schema):
     chart_type: str
@@ -34,3 +36,4 @@ class ChartTypeCreateSchema(Schema):
 class ChartTypeCreateSchemaOut(Schema):
     id: int
     chart_type: str
+    chart_image: str

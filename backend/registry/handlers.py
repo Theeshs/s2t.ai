@@ -5,10 +5,9 @@ from .models import Chart
 def get_all(model):
     return list(model.objects.all())
 
-@sync_to_async
+
 def get_dashboard_charts(id: str):
     charts = Chart.objects.filter(dashboard=id).all()
-    print(charts)
     if not charts.exists():
         return None
     return list(charts)
