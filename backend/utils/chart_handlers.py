@@ -49,7 +49,26 @@ class PieChart(HandleCharts):
 class BarChart(HandleCharts):
 
     def handle_bar(self):
-        return
+        with open(r'C:\Users\theek\dev\S2T.ai\backend\data\file_1.json', 'r') as json_file:
+            data = json.load(json_file)
+            return data
+    
+    def get_bar_chart_data(self):
+        data = self.handle_bar()
+        bar_chart_data = []
+
+        for obj in data:
+            bar_chart_data.append({
+                "name": obj[self.x_axis],
+                "y": obj[self.y_axis]
+            })
+        
+        data = {
+            "name": self.y_axis,
+            "colorByPoint": True,
+            "data": bar_chart_data
+        }
+        return data
     
 class LineChart(HandleCharts):
     def handle_line(self):

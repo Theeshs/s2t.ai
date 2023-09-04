@@ -10,7 +10,7 @@ from datetime import datetime
 from .models import Chart, ChartType
 from django.http import JsonResponse
 from utils.elasticsearch import ElasticSearchConnection
-from utils.chart_handlers import PieChart
+from utils.chart_handlers import PieChart, BarChart
 
 api = NinjaAPI()
 
@@ -136,7 +136,14 @@ async def process_chart_data(request, dashboard_id: int, chart_id: int, payload:
             pie = PieChart("file_1", "name", "salary")
             series = await sync_to_async(pie.get_pie_chart_data)()
             chart.chart_config["series"] = [series]
-            chart.chart_config["title"] = payload.title
+            chart.chart_config["title"]["text"] = payload.title
+        elif chart_type.chart_type == 'bar':
+            bar = BarChart("file_1", "name", "salary")
+            series = await sync_to_async(bar.get_bar_chart_data)()
+            chart.chart_config["series"] = [series]
+            chart.chart_config["title"]["text"] = payload.title
+            chart.chart_config["subtitle"]["text"] = payload.subTitle
+            chart.chart_config["yAxis"]["title"]["text"] = payload.yAxis
         
         await chart.asave()
         return {
