@@ -1,5 +1,5 @@
 from ninja import NinjaAPI
-from .schema import DashboardSchema, ChartsOutSchema, ChartCreateSchema, ChartTypeCreateSchemaOut, ChartTypeCreateSchema, ChartUpdatePayload
+from .schema import DashboardSchema, ChartsOutSchema, ChartCreateSchema, ChartTypeCreateSchemaOut, ChartTypeCreateSchema, ChartUpdatePayload, DataSourcesOutResponse
 from .models import Dashboard
 from django.db.utils import IntegrityError
 from rest_framework import status
@@ -10,7 +10,7 @@ from datetime import datetime
 from .models import Chart, ChartType
 from django.http import JsonResponse
 from utils.elasticsearch import ElasticSearchConnection
-from utils.chart_handlers import PieChart, BarChart
+from utils.chart_handlers import PieChart, BarChart, LineChart
 
 api = NinjaAPI()
 
@@ -144,6 +144,13 @@ async def process_chart_data(request, dashboard_id: int, chart_id: int, payload:
             chart.chart_config["title"]["text"] = payload.title
             chart.chart_config["subtitle"]["text"] = payload.subTitle
             chart.chart_config["yAxis"]["title"]["text"] = payload.yAxis
+        elif chart_type.chart_type == 'line':
+            line = LineChart("file_1", None, "Installation & Developers")
+            series = await sync_to_async(line.get_line_chart_data)()
+            chart.chart_config["series"] = series
+            chart.chart_config["title"]["text"] = payload.title
+            chart.chart_config["subtitle"]["text"] = payload.subTitle
+            chart.chart_config["yAxis"]["title"]["text"] = payload.yAxis
         
         await chart.asave()
         return {
@@ -156,4 +163,25 @@ async def process_chart_data(request, dashboard_id: int, chart_id: int, payload:
     else:
         print("unable to find the chart")
     
-    return JsonResponse({}, status=status.HTTP_200_OK)
+    return JsonResponse({}, status=status.HTTP_404_NOT_FOUND)
+
+@api.get("/chart/{type_id}/datasources", response=DataSourcesOutResponse)
+async def get_datasources(request, type_id: int):
+    chart_type = await ChartType.objects.aget(id=type_id)
+    column_names = []
+    if chart_type.chart_type in ("pie", "bar"):
+        column_names = ["name",  "age", "salary"]
+    elif chart_type.chart_type == "line":
+        column_names = [
+            "Installation & Developers", 
+            "Manufacturing",
+            "Sales & Distribution",
+            "Operations & Maintenance",
+            "Other"
+        ]
+    data = {
+        "chart_type_id": chart_type.id,
+        "chart_type": chart_type.chart_type,
+        "columns": column_names
+    }
+    return data

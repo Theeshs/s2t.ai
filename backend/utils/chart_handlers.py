@@ -72,4 +72,15 @@ class BarChart(HandleCharts):
     
 class LineChart(HandleCharts):
     def handle_line(self):
-        return
+        with open(r'C:\Users\theek\dev\S2T.ai\backend\data\file_2.json', 'r') as json_file:
+            data = json.load(json_file)
+            return data
+    
+
+    def get_line_chart_data(self):
+        return_data = []
+        data = self.handle_line()
+        for item in data:
+            if item.get("name") == self.y_axis:
+                return_data.append(item)
+        return return_data

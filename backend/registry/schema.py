@@ -44,3 +44,8 @@ class ChartUpdatePayload(Schema):
     subTitle: str
     yAxis: str
     xAxis: str
+
+class DataSourcesOutResponse(Schema):
+    chart_type_id: int
+    chart_type: str
+    columns: list
