@@ -1,5 +1,5 @@
-from ninja import NinjaAPI
-from .schema import DashboardSchema, ChartsOutSchema, ChartCreateSchema, ChartTypeCreateSchemaOut, ChartTypeCreateSchema, ChartUpdatePayload, DataSourcesOutResponse
+from ninja import Query, NinjaAPI
+from .schema import (DashboardSchema, ChartsOutSchema, ChartCreateSchema, ChartTypeCreateSchemaOut, ChartTypeCreateSchema, ChartUpdatePayload, DataSourcesOutResponse)
 from .models import Dashboard
 from django.db.utils import IntegrityError
 from rest_framework import status
@@ -10,7 +10,8 @@ from datetime import datetime
 from .models import Chart, ChartType
 from django.http import JsonResponse
 from utils.elasticsearch import ElasticSearchConnection
-from utils.chart_handlers import PieChart, BarChart, LineChart
+from utils.chart_handlers import PieChart, BarChart, LineChart, get_columns
+from django.http import HttpRequest
 
 api = NinjaAPI()
 
@@ -133,19 +134,19 @@ async def process_chart_data(request, dashboard_id: int, chart_id: int, payload:
     if chart:
         chart_type = await ChartType.objects.aget(id=chart.chart_type_id)
         if chart_type.chart_type == 'pie':
-            pie = PieChart("file_1", "name", "salary")
+            pie = PieChart(payload.dataSourceName, payload.xAxis, payload.yAxis)
             series = await sync_to_async(pie.get_pie_chart_data)()
             chart.chart_config["series"] = [series]
             chart.chart_config["title"]["text"] = payload.title
         elif chart_type.chart_type == 'bar':
-            bar = BarChart("file_1", "name", "salary")
+            bar = BarChart(payload.dataSourceName, payload.xAxis, payload.yAxis)
             series = await sync_to_async(bar.get_bar_chart_data)()
             chart.chart_config["series"] = [series]
             chart.chart_config["title"]["text"] = payload.title
             chart.chart_config["subtitle"]["text"] = payload.subTitle
             chart.chart_config["yAxis"]["title"]["text"] = payload.yAxis
         elif chart_type.chart_type == 'line':
-            line = LineChart("file_1", None, "Installation & Developers")
+            line = LineChart(payload.dataSourceName, None, payload.linChartValues)
             series = await sync_to_async(line.get_line_chart_data)()
             chart.chart_config["series"] = series
             chart.chart_config["title"]["text"] = payload.title
@@ -168,20 +169,22 @@ async def process_chart_data(request, dashboard_id: int, chart_id: int, payload:
 @api.get("/chart/{type_id}/datasources", response=DataSourcesOutResponse)
 async def get_datasources(request, type_id: int):
     chart_type = await ChartType.objects.aget(id=type_id)
-    column_names = []
+    data_sources = []
     if chart_type.chart_type in ("pie", "bar"):
-        column_names = ["name",  "age", "salary"]
+        data_sources = ["file_1"]
     elif chart_type.chart_type == "line":
-        column_names = [
-            "Installation & Developers", 
-            "Manufacturing",
-            "Sales & Distribution",
-            "Operations & Maintenance",
-            "Other"
+        data_sources = [
+            "file_2"
         ]
     data = {
         "chart_type_id": chart_type.id,
         "chart_type": chart_type.chart_type,
-        "columns": column_names
+        "data_sources": data_sources
     }
     return data
+
+@api.get("/chart/{data_source_name}", response=List[str])
+async def get_data_source_columns(request: HttpRequest, data_source_name: str):
+    chart_type = request.GET.get("chart_type", "pie")
+    columns = await sync_to_async(get_columns)(data_source_name, chart_type)
+    return list(columns)

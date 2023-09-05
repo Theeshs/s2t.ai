@@ -1,6 +1,19 @@
 import json
 from abc import ABC, abstractmethod
 
+
+def get_columns(file_name, chart_type="pie"):
+    with open(f'./backend/data/{file_name}.json', 'r') as json_file:
+            data = json.load(json_file)
+            if chart_type in ["pie", "bar"]:
+                if isinstance(data, list) and len(data) > 0:
+                    return data[0].keys()
+                elif isinstance(data, dict):
+                    return data.keys()
+            elif chart_type == "line":
+                return [category.get("name") for category in data]
+            return []
+
 class HandleCharts(ABC):
 
     def __init__(self, file_name: str, x_axis: str, y_axis: str) -> None:
@@ -24,7 +37,7 @@ class HandleCharts(ABC):
 class PieChart(HandleCharts):
 
     def handle_pie(self):
-        with open(r'C:\Users\theek\dev\S2T.ai\backend\data\file_1.json', 'r') as json_file:
+        with open(f'./backend/data/{self.file_name}.json', 'r') as json_file:
             data = json.load(json_file)
             return data
     
@@ -49,7 +62,7 @@ class PieChart(HandleCharts):
 class BarChart(HandleCharts):
 
     def handle_bar(self):
-        with open(r'C:\Users\theek\dev\S2T.ai\backend\data\file_1.json', 'r') as json_file:
+        with open(f'./backend/data/{self.file_name}.json', 'r') as json_file:
             data = json.load(json_file)
             return data
     
@@ -72,7 +85,7 @@ class BarChart(HandleCharts):
     
 class LineChart(HandleCharts):
     def handle_line(self):
-        with open(r'C:\Users\theek\dev\S2T.ai\backend\data\file_2.json', 'r') as json_file:
+        with open(f'./backend/data/{self.file_name}.json', 'r') as json_file:
             data = json.load(json_file)
             return data
     
@@ -80,7 +93,9 @@ class LineChart(HandleCharts):
     def get_line_chart_data(self):
         return_data = []
         data = self.handle_line()
+
         for item in data:
-            if item.get("name") == self.y_axis:
-                return_data.append(item)
+            for cat in self.y_axis:
+                if cat == item.get("name"):
+                    return_data.append(item)
         return return_data

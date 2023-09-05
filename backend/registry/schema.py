@@ -1,6 +1,6 @@
 from datetime import datetime
 from ninja import Schema
-from typing import Optional
+from typing import Optional, List
 
 def to_camel(string: str) -> str:
     return ''.join(word.capitalize() for word in string.split('_'))
@@ -42,10 +42,12 @@ class ChartTypeCreateSchemaOut(Schema):
 class ChartUpdatePayload(Schema):
     title: str
     subTitle: str
-    yAxis: str
-    xAxis: str
+    yAxis: Optional[str]
+    xAxis: Optional[str]
+    dataSourceName: str
+    linChartValues: Optional[List[str]]
 
 class DataSourcesOutResponse(Schema):
     chart_type_id: int
     chart_type: str
-    columns: list
+    data_sources: list
