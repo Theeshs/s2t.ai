@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('registry', '0003_charttype_alter_chart_chart_type'),
+        ("registry", "0003_charttype_alter_chart_chart_type"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='dashboard',
-            name='name',
+            model_name="dashboard",
+            name="name",
             field=models.CharField(max_length=100, unique=True),
         ),
     ]

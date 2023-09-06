@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('registry', '0007_alter_charttype_chart_image'),
+        ("registry", "0007_alter_charttype_chart_image"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='chart',
-            name='chart_config',
+            model_name="chart",
+            name="chart_config",
             field=models.JSONField(blank=True, null=True),
         ),
     ]

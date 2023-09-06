@@ -1,23 +1,36 @@
+import json
+import os
 import time
 from typing import Any, Optional
-from django.db.utils import OperationalError
-from django.core.management.base import BaseCommand
-from utils.elasticsearch import ElasticSearchConnection
-import json
+
 from django.conf import settings
+from django.core.management.base import BaseCommand
+from django.db.utils import OperationalError
+
+from utils.elasticsearch import ElasticSearchConnection
+
 
 class Command(BaseCommand):
-    
     def handle(self, *args: Any, **options: Any):
-        self.stdout.write('Creating elastic search documents')
-        print(settings.ELASTICSEARCH_HOST, settings.ELASTICSEARCH_PORT)
-        es = ElasticSearchConnection(settings.ELASTICSEARCH_HOST, settings.ELASTICSEARCH_PORT)
-        # with open(r'C:\Users\theek\dev\S2T.ai\backend\data\doc_1.json', 'r') as json_file:
-        #     doc_1_content = json.load(json_file)
-            
-        #     es.create_document(index="testasd", body={"bar_pie": doc_1_content}, id=1)
-        
-        with open(r'C:\Users\theek\dev\S2T.ai\backend\data\doc_2.json', 'r') as json_file2:
-            doc_12_content = json.load(json_file2)
-            es.create_document(index="line", body={"line": doc_12_content}, id=1)
-            
+        self.stdout.write("Creating elastic search documents")
+        directory_path = "../backend/data"
+        es = ElasticSearchConnection(
+            settings.ELASTICSEARCH_HOST, settings.ELASTICSEARCH_PORT
+        )
+        for path in os.listdir(directory_path):
+            if os.path.isdir(os.path.join(directory_path, path)) and path == "line":
+                files = os.listdir(os.path.join(directory_path, path))
+                print(files)
+                for file in files:
+                    with open(f"{directory_path}/{path}/{file}") as json_file:
+                        print(f"{file.split('.json')[0]}")
+                        json_content = json.load(json_file)
+                        es.create_document(index="line_charets", body={"line": json_content}, id=f"{file.split('.json')[0]}")
+            elif os.path.isdir(os.path.join(directory_path, path)) and path == "pie_bar":
+                files = os.listdir(os.path.join(directory_path, path))
+                print(files)
+                for file in files:
+                    with open(f"{directory_path}/{path}/{file}") as json_file:
+                        print(f"{file.split('.json')[0]}")
+                        json_content = json.load(json_file)
+                        es.create_document(index="pie_bar_charts", body={"pie_bar": json_content}, id=f"{file.split('.json')[0]}")
