@@ -1,7 +1,7 @@
 [
-    {"Name": "Thee", "Age": 28, "Expences": 300, "Salary": 3000, "Tax": 1500},
-    {"Name": "Sajani", "Age": 26, "Expences": 800, "Salary": 5000, "Tax": 2000},
-    {"Name": "Nuwan", "Age": 30, "Expences": 1000, "Salary": 8000, "Tax": 2899},
-    {"Name": "Dilu", "Age": 32, "Expences": 1100, "Salary": 6700, "Tax": 3890},
-    {"Name": "Pasindu", "Age": 19, "Expences": 150, "Salary": 11150, "Tax": 4179}
+    {"Name": "Thee", "Age": 28, "Expences": 300, "Salary": 3000, "Tax": 1500, "Rent": 2800},
+    {"Name": "Sajani", "Age": 26, "Expences": 800, "Salary": 5000, "Tax": 2000, "Rent": 1850},
+    {"Name": "Nuwan", "Age": 30, "Expences": 1000, "Salary": 8000, "Tax": 2899, "Rent": 2200},
+    {"Name": "Dilu", "Age": 32, "Expences": 1100, "Salary": 6700, "Tax": 3890, "Rent": 1950},
+    {"Name": "Pasindu", "Age": 19, "Expences": 150, "Salary": 11150, "Tax": 4179, "Rent": 4000}
 ]

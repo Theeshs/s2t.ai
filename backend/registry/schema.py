@@ -25,6 +25,8 @@ class ChartsOutSchema(Schema):
     order: Optional[int]
     chart_type: Optional[int]
     chart_config: Optional[dict]
+    height: Optional[int]
+    width: Optional[int]
 
 
 class ChartCreateSchema(Schema):
@@ -32,6 +34,8 @@ class ChartCreateSchema(Schema):
     order: int
     chart_type: int
     chart_config: Optional[dict]
+    height: int
+    width: int
 
 
 class ChartTypeCreateSchema(Schema):

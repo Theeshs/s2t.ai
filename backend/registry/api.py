@@ -105,6 +105,8 @@ async def list_dashboard_charts(request, id: int):
                 "order": chart.order,
                 "chart_type": chart.chart_type_id,
                 "chart_config": chart.chart_config,
+                "height": chart.chart_height,
+                "width": chart.chart_width
             }
         )
     return temp_charts
@@ -120,6 +122,8 @@ async def create_chart(request, id: int, payload: ChartCreateSchema):
         "chart_type": chart_type,
         "dashboard": dashboard,
         "chart_config": payload.chart_config,
+        "chart_height": payload.height,
+        "chart_width": payload.width
     }
     chart = await Chart.objects.acreate(**chart_payload)
     chart = {
@@ -128,6 +132,8 @@ async def create_chart(request, id: int, payload: ChartCreateSchema):
         "order": chart.order,
         "chart_type": chart.chart_type_id,
         "chart_config": chart.chart_config,
+        "height": chart.chart_height,
+        "width": chart.chart_width
     }
     return chart
 

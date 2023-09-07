@@ -27,3 +27,5 @@ class Chart(BaseModel):
         Dashboard, related_name="dashboard_charts", on_delete=models.CASCADE
     )
     chart_config = models.JSONField(null=True, blank=True)
+    chart_height = models.IntegerField(null=True, blank=True)
+    chart_width = models.IntegerField(null=True, blank=True)
